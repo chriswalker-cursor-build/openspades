@@ -156,7 +156,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends clang-format
           echo "clang-format version: $(clang-format --version)"
 
-      - name: Check format (IN-SCOPE: Tests/**)
+      - name: "Check format (IN-SCOPE Tests C++)"
         run: |
           set -euo pipefail
           mapfile -d '' files < <(find Tests \
