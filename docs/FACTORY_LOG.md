@@ -21,8 +21,9 @@
 - CI: `build-ubuntu-free` + `lint-clang-format` (existing Win/macOS/Nix kept).
 - Lint: IN SCOPE = `Tests/**` C++ (exclude `Tests/third_party`); OUT = AngelScript vendor, third-party Sources trees, pre-existing drifted first-party Sources (~181/382 files vs clang-format-18), `Resources/Scripts/**/*.as` (see `AGENTS.md` + workflow comments).
 - Tests: Catch2 v2.13.10 single-header characterisation suite (`openspades_unit_tests`) — IntVector3 / Vector3 / UTF-8 helpers from `Sources/Core/Math.h` (header-only, no GPU). Honest minimal coverage, not a game suite.
-- Bugbot: pending PR review after push.
-- Status: CI YAML fix (quoted step name with colon) — re-running gates
+- Bugbot: Addressed medium finding — removed unused `submodules: true` from `build-ubuntu-free` (apt/free smoke does not need vcpkg/flatpak submodules).
+- Status: required gates green locally + on CI (ubuntu-free + lint); re-push for Bugbot fix; merge when Autofix settles / permissions allow
+
 
 
 ---
