@@ -37,10 +37,13 @@ void main() {
 	// color is linear
 	gl_FragColor = vec4(color.xyz, 1.);
 	
-	vec3 shading = vec3(color.w);
+	// Soften sun term so hard Lambert faces read less flat on voxels
+	float sunTerm = mix(0.12, 1.0, clamp(color.w, 0.0, 1.0));
+	vec3 shading = vec3(sunTerm);
 	shading *= EvaluateSunLight();
 	
 	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
+	ao = mix(0.4, 1.0, ao);
 	
 	shading += EvaluateAmbientLight(ao);
 	

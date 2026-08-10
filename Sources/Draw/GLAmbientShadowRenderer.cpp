@@ -158,12 +158,16 @@ namespace spades {
 					brightness = dist * (1.0 / float((RayLength - 1) * (RayLength - 1)));
 					if (brightness > 1.f)
 						brightness = 1.f;
+					// Soften near-hit contact AO so creases stay readable
+					brightness = std::sqrt(brightness);
 				}
 
 				sum += brightness;
 			}
 
-			sum = std::min(sum * (2.f / (float)NumRays), 1.0f);
+			// Milder average + floor lift — less crushed ambient in dense voxels
+			sum = std::min(sum * (1.85f / (float)NumRays), 1.0f);
+			sum = 0.16f + sum * 0.84f;
 
 			return sum;
 		}

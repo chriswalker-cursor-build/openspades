@@ -38,12 +38,15 @@ float VisibilityOfSunLight() {
 }
 
 vec3 EvaluateSunLight(){
-	return vec3(.6) * VisibilityOfSunLight();
+	// Warm directional key — less flat gray sunlight on voxels
+	return vec3(0.68, 0.58, 0.46) * VisibilityOfSunLight();
 }
 
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion) {
 #if USE_SSAO
     float ssao = texture2D(ssaoTexture, gl_FragCoord.xy * ssaoTextureUVScale).x;
+    // Soften SSAO influence so ambient fill survives in creases
+    ssao = mix(1.0, ssao, 0.78);
 #else
     float ssao = 1.0;
 #endif
@@ -53,6 +56,7 @@ vec3 EvaluateAmbientLight(float detailAmbientOcclusion) {
 vec3 EvaluateDirectionalAmbientLight(float detailAmbientOcclusion, vec3 direction) {
 #if USE_SSAO
     float ssao = texture2D(ssaoTexture, gl_FragCoord.xy * ssaoTextureUVScale).x;
+    ssao = mix(1.0, ssao, 0.78);
 #else
     float ssao = 1.0;
 #endif

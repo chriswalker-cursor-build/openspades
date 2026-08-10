@@ -82,7 +82,8 @@ namespace spades {
 
 				pixelShift.SetValue(1.f / (float)width, 1.f / (float)height);
 
-				float kernelSize = std::max(1.0f, std::min(width, height) * 0.0018f);
+				// Slightly larger kernel softens contact AO without changing sample count
+				float kernelSize = std::max(1.0f, std::min(width, height) * 0.0024f);
 				sampleOffsetScale.SetValue(kernelSize / (float)width, kernelSize / (float)height);
 
 				if (width < renderer.GetRenderWidth()) {

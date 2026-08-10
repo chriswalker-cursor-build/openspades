@@ -31,7 +31,8 @@ float VisibilityOfSunLight() {
 }
 
 vec3 EvaluateSunLight(){
-	return vec3(.6) * VisibilityOfSunLight();
+	// Match Common.fs warm key when SSAO path is skipped
+	return vec3(0.68, 0.58, 0.46) * VisibilityOfSunLight();
 }
 
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion) {

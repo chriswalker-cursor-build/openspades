@@ -29,14 +29,14 @@
 ---
 
 ## Slice A — Lighting
-### YYYY-MM-DD
-- Change:
-- Proof:
-- CI:
-- Lint:
-- Tests:
-- Bugbot:
-- Status:
+### 2026-08-10
+- Change: Visual-only lighting pass within Slice A allowlist — warmer sun/ambient/dynamic lights; softer SSAO + ambient-shadow contact terms with lifted black floor; softer map-shadow penumbra / variance min; mild sun wrap + AO remap on BasicBlock / VoxelModel / OptimizedVoxelModel / BasicBlockPhys so voxels read less flat. Touched shaders under `Resources/Shaders/{Shadow,DynamicLight,PostFilters/SSAO*,BasicBlock*,VoxelModel*,OptimizedVoxelModel*}` and C++ `GLAmbientShadowRenderer`, `GLSSAOFilter`, `GLShadowShader`, `GLDynamicLightShader`. Did not touch GLWater*/other PostFilters/GLFog*/GLSettings/Client/netcode. Did not widen into `GLRenderer.cpp`.
+- Proof: `clang-format -i` on edited first-party Draw C++; local cmake RelWithDebInfo NONFREE=NO YSR=NO (gcc/g++) + `ctest --test-dir openspades.mk --output-on-failure`.
+- CI: expect `build-ubuntu-free` + `lint-clang-format` + ctest green on PR.
+- Lint: no `Tests/**` edits; formatted touched `Sources/Draw/*` before push (OUT-OF-SCOPE fail-gate files still formatted per AGENTS).
+- Tests: no characterisation changes required; existing Catch2 suite expected green unchanged.
+- Bugbot: address review threads if any after PR open.
+- Status: implementing → push/PR → self-fix CI → merge if permissions allow
 
 ---
 

@@ -46,12 +46,14 @@ void main() {
 	// color is linear
 	gl_FragColor = vec4(color.xyz, 1.);
 
-	vec3 shading = vec3(OrenNayar(.8, color.w,
+	float sunTerm = mix(0.12, 1.0, clamp(color.w, 0.0, 1.0));
+	vec3 shading = vec3(OrenNayar(.75, sunTerm,
 							 -dot(viewSpaceNormal, normalize(viewSpaceCoord))));
 	vec3 sunLight = EvaluateSunLight();
 	shading *= sunLight;
 
 	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
+	ao = mix(0.4, 1.0, ao);
 
 	shading += EvaluateAmbientLight(ao);
 

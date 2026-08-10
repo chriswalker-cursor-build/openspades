@@ -39,13 +39,15 @@ void main() {
 	// color is linearized
 	gl_FragColor = color;
 
-	vec3 shading = vec3(sunlightShading);
+	float sunTerm = mix(0.14, 1.0, clamp(sunlightShading, 0.0, 1.0));
+	vec3 shading = vec3(sunTerm);
 	
 	// FIXME: prepare for shadow?
 	shading *= EvaluateSunLight();
 	
 	vec3 ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).xyz;
-	shading += EvaluateAmbientLight(ao.x);
+	float aoTerm = mix(0.4, 1.0, ao.x);
+	shading += EvaluateAmbientLight(aoTerm);
 	
 	gl_FragColor.xyz *= shading;
 

@@ -25,8 +25,7 @@ varying vec3 mapShadowCoord;
 
 float VisibilityOfSunLight_Map() {
 	float val = texture2D(mapShadowTexture, mapShadowCoord.xy).w;
-	if(val < mapShadowCoord.z - 0.0001)
-		return 0.;
-	else
-		return 1.;
+	// Soft bias + partial penumbra for contact-shadow readability
+	float dist = val - (mapShadowCoord.z - 0.00035);
+	return clamp(dist * 180.0 + 0.15, 0.0, 1.0);
 }

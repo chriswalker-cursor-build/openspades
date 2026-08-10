@@ -56,11 +56,12 @@ float VisibilityOfSunLight_Map() {
 	float averageP = mix(average2.x, average2.y, shadowMapBlend.y);
 	
 	float variance = averageP - average * average;
-	variance = max(variance, 0.000000001);
+	// Raise min variance for softer contact penumbra / less acne
+	variance = max(variance, 0.00000002);
 	
-	float val = mapShadowCoord.z - average;
+	float val = mapShadowCoord.z - average - 0.00025;
 	val *= val;
 	val = variance / (variance + val);
-	
-	return val;
+	// Lift shadow floor slightly so deep map shadows stay readable
+	return mix(0.08, 1.0, clamp(val, 0.0, 1.0));
 }

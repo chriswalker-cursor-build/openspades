@@ -78,9 +78,13 @@ namespace spades {
 			dynamicLightLinearLength(program);
 
 			dynamicLightOrigin.SetValue(param.origin.x, param.origin.y, param.origin.z);
-			dynamicLightColor.SetValue(param.color.x, param.color.y, param.color.z);
-			dynamicLightRadius.SetValue(param.radius);
-			dynamicLightRadiusInversed.SetValue(1.f / param.radius);
+			// Warm tint at bind time (shader also warms); keep magnitude close to original
+			dynamicLightColor.SetValue(param.color.x * 1.06f, param.color.y * 0.98f,
+			                           param.color.z * 0.88f);
+			// Slightly larger radius softens contact falloff of muzzle / blast lights
+			float radius = param.radius * 1.06f;
+			dynamicLightRadius.SetValue(radius);
+			dynamicLightRadiusInversed.SetValue(1.f / radius);
 
 			if (param.type == client::DynamicLightTypeSpotlight) {
 				device.ActiveTexture(texStage);

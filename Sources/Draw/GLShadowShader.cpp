@@ -228,8 +228,12 @@ namespace spades {
 				Vector3 ac = renderer->GetFogColor();
 				ac *= ac; // linearize
 				ambientColor(program);
-				ac *= 0.5f;
-				const float minimumLuminance = 0.35f;
+				ac *= 0.55f;
+				// Warm ambient fill so fog-derived sky light is less sterile gray
+				ac.x *= 1.06f;
+				ac.y *= 0.98f;
+				ac.z *= 0.90f;
+				const float minimumLuminance = 0.40f;
 				float luminance = (ac.x + ac.y + ac.z) / 3.0f;
 				if (luminance < minimumLuminance) {
 					// we want things still visible even if sky is pitch black
