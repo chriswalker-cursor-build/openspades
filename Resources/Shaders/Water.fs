@@ -57,32 +57,32 @@ void main() {
 	+ vec4(0., 0., 0.754, 0.1315);
 	vec2 waveCoord2 = worldPosition.xy * 0.02344 + vec2(.154, .7315);
 	
-	// evaluate waveform
+	// evaluate waveform — quieter normals for clearer refraction
 	vec3 wave = texture2D(waveTexture, waveCoord.xy).xyz;
 	wave = mix(vec3(-1.), vec3(1.), wave);
-	wave.xy *= 0.08 / 200.;
+	wave.xy *= 0.08 / 280.;
 	
 	// detail (Far Cry seems to use this technique)
 	vec2 wave2 = texture2D(waveTexture, waveCoord.zw).xy;
 	wave2 = mix(vec2(-1.), vec2(1.), wave2);
-	wave2.xy *= 0.15704 / 200.;
+	wave2.xy *= 0.15704 / 280.;
 	wave.xy += wave2;
 	
 	// rough
 	wave2 = texture2D(waveTexture, waveCoord2.xy).xy;
 	wave2 = mix(vec2(-1.), vec2(1.), wave2);
-	wave2.xy *= 0.02344 / 200.;
+	wave2.xy *= 0.02344 / 320.;
 	wave.xy += wave2;
 	
-	wave.z = (1. / 128.);
+	wave.z = (1. / 96.);
 	wave.xyz = normalize(wave.xyz);
 	
 	vec2 origScrPos = screenPosition.xy / screenPosition.z;
 	vec2 scrPos = origScrPos;
 	
 	float scale = 1. / viewPosition.z;
-	vec2 disp = wave.xy * 0.1;
-	scrPos += disp * scale * displaceScale  * 4.;
+	vec2 disp = wave.xy * 0.085;
+	scrPos += disp * scale * displaceScale  * 3.2;
 	
 	// check envelope length.
 	// if the displaced location points the out of the water,
@@ -140,19 +140,26 @@ void main() {
 	
 	// attenuation factor for addition blendings below
 	vec3 att = 1. - fogDensity;
+
+	// shoreline foam / shallow tint (readable at default r_water+)
+	float shore = 1.0 - smoothstep(0.02, 0.4, envelope);
+	shore *= shore;
+	vec3 sunlight = EvaluateSunLight();
+	vec3 foamTint = mix(vec3(0.72, 0.86, 0.9), skyColor, 0.4);
+	foamTint *= sunlight + EvaluateAmbientLight(1.) * 0.55;
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, foamTint, shore * 0.42 * att.x);
 	
 	// reflectivity
-	vec3 sunlight = EvaluateSunLight();
 	vec3 ongoing = normalize(worldPositionFromOrigin);
 	float reflective = dot(ongoing, wave.xyz);
 	reflective = clamp(1. - reflective, 0., 1.);
 	reflective *= reflective;
 	reflective *= reflective;
-	reflective += .03;
+	reflective += .04;
 	
-	// fresnel refrection to sky
+	// fresnel reflection to sky
 	gl_FragColor.xyz = mix(gl_FragColor.xyz,
-						   mix(skyColor * reflective * .6,
+						   mix(skyColor * reflective * .7,
 							   fogColor, fogDensity),
 						   reflective);
 	

@@ -41,14 +41,15 @@
 ---
 
 ## Slice B — Water / Fog / Post-FX
-### YYYY-MM-DD
-- Change:
-- Proof:
-- CI:
-- Lint:
-- Tests:
-- Bugbot:
-- Status:
+### 2026-08-10
+- Change: Visual filmic pass on water / fog / post-FX only (allowlisted Draw filters + Water/Fog/PostFilters shaders; **did not** touch `SSAO.fs`/`SSAO.program` or `GLRenderer.*`). Water1–3: quieter wave normals, tighter refraction/reflection displace, shoreline foam/tint for default `r_water=2`. Fog/Fog2: softer ambient fill + sun-integrated haze (less milky wash / hard cutoff). Bloom mix controlled with slight highlight punch; ColorCorrection saturation/enhancement + sharpen caps tuned against ringing; FXAA span/reduce and TAA mix-rate tempered; default `r_sharpen=0.85`.
+- Proof: `cmake -S . -B openspades.mk -DCMAKE_BUILD_TYPE=RelWithDebInfo -DOPENSPADES_NONFREE_RESOURCES=NO -DOPENSPADES_YSR=NO -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++` + build + `ctest --test-dir openspades.mk --output-on-failure`; `clang-format` on edited first-party C++.
+- CI: expect `build-ubuntu-free` + `lint-clang-format` + ctest green.
+- Lint: formatted edited `Sources/Draw/GLBloomFilter.cpp`, `GLColorCorrectionFilter.cpp`, `GLSettings.cpp`; CI fail-gate still `Tests/**` only. SSAO left to Slice A.
+- Tests: minimal Catch2 characterisation suite unchanged (no GPU tests); keep green.
+- Bugbot: address threads if any after PR open.
+- Status: implementing → self-verify → ready-to-merge / merge if permitted.
+
 
 ---
 

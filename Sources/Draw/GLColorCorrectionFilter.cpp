@@ -18,8 +18,8 @@
 
  */
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 #include "GLColorCorrectionFilter.h"
 #include "GLProgram.h"
@@ -79,8 +79,9 @@ namespace spades {
 
 			// If temporal AA is enabled, enable the sharpening effect regardless of
 			// the current fog color to offset the blurring caused by the temporal AA.
+			// Keep the floor moderate to avoid oversharpen ringing around edges.
 			if (settings.r_temporalAA) {
-				sharpeningFloor = 1.5f;
+				sharpeningFloor = 1.15f;
 			}
 
 			static GLProgramAttribute lensPosition("positionAttribute");
@@ -115,22 +116,22 @@ namespace spades {
 
 			if (settings.r_hdr) {
 				// when HDR is enabled ACES tone mapping is applied first, so
-				// lower enhancement value is required
+				// lower enhancement value is required — slight lift for punchy highlights
 				if (settings.r_bloom) {
-					saturation.SetValue(0.8f * def.saturation * settings.r_saturation);
-					enhancement.SetValue(0.1f);
+					saturation.SetValue(0.86f * def.saturation * settings.r_saturation);
+					enhancement.SetValue(0.16f);
 				} else {
-					saturation.SetValue(0.9f * def.saturation * settings.r_saturation);
-					enhancement.SetValue(0.0f);
+					saturation.SetValue(0.92f * def.saturation * settings.r_saturation);
+					enhancement.SetValue(0.05f);
 				}
 			} else {
 				if (settings.r_bloom) {
-					// make image sharper
-					saturation.SetValue(.85f * def.saturation * settings.r_saturation);
-					enhancement.SetValue(0.7f);
+					// filmic contrast without oversaturated bloom wash
+					saturation.SetValue(.88f * def.saturation * settings.r_saturation);
+					enhancement.SetValue(0.55f);
 				} else {
 					saturation.SetValue(1.f * def.saturation * settings.r_saturation);
-					enhancement.SetValue(0.3f);
+					enhancement.SetValue(0.35f);
 				}
 			}
 
@@ -194,7 +195,7 @@ namespace spades {
 			// we will maintain the status quo for now. (In most servers I have encountered, the fog
 			// color was a bright color, so this status quo won't be a problem, I think. No one has
 			// complained about it so far.)
-			sharpening.SetValue(std::max(std::sqrt(fogLuminance) * 2.7f, sharpeningFloor));
+			sharpening.SetValue(std::max(std::sqrt(fogLuminance) * 2.35f, sharpeningFloor));
 			sharpeningFinalGain.SetValue(sharpeningFinalGainValue);
 			blurPixelShift.SetValue(1.0f / (float)input.GetHeight());
 

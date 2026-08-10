@@ -63,32 +63,32 @@ void main() {
 	+ vec4(0., 0., 0.754, 0.1315);
 	vec2 waveCoord2 = worldPositionOriginal.xy * 0.02344 + vec2(.154, .7315);
 
-	// evaluate waveform (normal vector)
+	// evaluate waveform (normal vector) — quieter for clearer refraction/reflection
 	vec3 wave = texture2DArray(waveTextureArray, vec3(waveCoord.xy, 0.0)).xyz;
 	wave = mix(vec3(-0.0025), vec3(0.0025), wave);
-	wave.xy *= 0.08 * 0.4;
+	wave.xy *= 0.08 * 0.28;
 
 	// detail
 	vec2 wave2 = texture2DArray(waveTextureArray, vec3(waveCoord.zw, 1.0)).xy;
 	wave2 = mix(vec2(-0.0025), vec2(0.0025), wave2);
-	wave2.xy *= 0.15704 * 0.2;
+	wave2.xy *= 0.15704 * 0.14;
 	wave.xy += wave2;
 
 	// rough
 	wave2 = texture2DArray(waveTextureArray, vec3(waveCoord2.xy, 2.0)).xy;
 	wave2 = mix(vec2(-0.0025), vec2(0.0025), wave2);
-	wave2.xy *= 0.02344 * 2.5;
+	wave2.xy *= 0.02344 * 1.6;
 	wave.xy += wave2;
 
-	wave.z = (1. / 128.) / (4.); // (negated normal vector!)
+	wave.z = (1. / 96.) / (4.); // (negated normal vector!) flatter = less noise
 	wave.xyz = normalize(wave.xyz);
 
 	vec2 origScrPos = screenPosition.xy / screenPosition.z;
 	vec2 scrPos = origScrPos;
 
 	float scale = 1. / viewPosition.z;
-	vec2 disp = wave.xy * 0.1;
-	scrPos += disp * scale * displaceScale  * 4.;
+	vec2 disp = wave.xy * 0.085;
+	scrPos += disp * scale * displaceScale  * 3.2;
 
 	// check envelope length.
 	// if the displaced location points the out of the water,
@@ -147,6 +147,14 @@ void main() {
 	// attenuation factor for addition blendings below
 	vec3 att = 1. - fogDensity;
 
+	// shoreline foam / shallow tint (readable at default r_water+)
+	float shore = 1.0 - smoothstep(0.02, 0.42, envelope);
+	shore *= shore;
+	vec3 sunlight = EvaluateSunLight();
+	vec3 foamTint = mix(vec3(0.74, 0.88, 0.92), skyColor, 0.35);
+	foamTint *= sunlight + EvaluateAmbientLight(1.) * 0.5;
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, foamTint, shore * 0.45 * att.x);
+
 	/* ------- Reflection -------- */
 
 	vec3 ongoing = normalize(worldPositionFromOrigin);
@@ -157,10 +165,10 @@ void main() {
     lodBias = log2(lodBias);
     lodBias = clamp(lodBias, 0., 2.);
 
-	// compute reflection color
+	// compute reflection color — slightly tighter displace for clearer mirror
 	vec2 scrPos2 = origScrPos;
-	disp.y = -abs(disp.y * 3.);
-	scrPos2 -= disp * scale * displaceScale * 15.;
+	disp.y = -abs(disp.y * 2.6);
+	scrPos2 -= disp * scale * displaceScale * 12.;
 
 
 	vec3 refl = texture2D(mirrorTexture, scrPos2, lodBias).xyz;
@@ -169,16 +177,15 @@ void main() {
 #endif
 
 	// reflectivity
-	vec3 sunlight = EvaluateSunLight();
 	float reflective = dot(ongoing, wave.xyz);
 	reflective = clamp(1. - reflective, 0., 1.);
 
     float orig_reflective = reflective;
 	reflective *= reflective;
 	reflective *= reflective;
-    reflective = mix(reflective, orig_reflective * .6,
+    reflective = mix(reflective, orig_reflective * .65,
         clamp(lodBias * .13 - .13, 0., 1.));
-	//reflective += .03;
+	reflective = max(reflective, 0.035);
 
 	// reflection
 #if USE_VOLUMETRIC_FOG

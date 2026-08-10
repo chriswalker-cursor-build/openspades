@@ -349,22 +349,26 @@ void main() {
 #endif
 	}
 
-	total = mix(total, fogDensFunc(zMaxTime), 0.04);
+	// less ambient fill → avoids milky wash / hard cutoff
+	total = mix(total, fogDensFunc(zMaxTime), 0.018);
 	total /= fogDensFunc(fogDistanceTime);
 
-	// add gradient
+	// cinematic sun-integrated haze (softer hotspot, less milk)
 	vec3 sunDir = normalize(vec3(0., -1., -1.));
 	float bright = dot(sunDir, normalize(viewDir));
-	total *= .8 + bright * 0.3;
-	bright = exp2(bright * 16. - 15.);
-	total *= bright + 1.;
+	total *= .72 + bright * 0.22;
+	bright = exp2(bright * 14. - 14.);
+	total *= bright * 0.75 + 1.;
 
 	gl_FragColor = texture2D(colorTexture, texCoord);
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz *= gl_FragColor.xyz; // linearize
 #endif
 
-	gl_FragColor.xyz += total * fogColor;
+	// soft integrate: partial mix + residual in-scatter (no hard milky add)
+	float haze = clamp(total, 0., 1.);
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, haze * 0.32);
+	gl_FragColor.xyz += total * fogColor * 0.68;
 
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);

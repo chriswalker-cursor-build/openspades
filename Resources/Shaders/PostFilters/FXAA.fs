@@ -27,9 +27,9 @@ varying vec2 texCoord;
  modification that the texture2DLod stuff was removed since it's
  unsupported by WebGL. */
 
-#define FXAA_REDUCE_MIN   (1.0/ 128.0)
-#define FXAA_REDUCE_MUL   (1.0 / 8.0)
-#define FXAA_SPAN_MAX     8.0
+#define FXAA_REDUCE_MIN   (1.0/ 96.0)
+#define FXAA_REDUCE_MUL   (1.0 / 10.0)
+#define FXAA_SPAN_MAX     6.0
 
 vec4 applyFXAA(vec2 fragCoord, sampler2D tex)
 {
