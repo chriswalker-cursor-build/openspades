@@ -174,7 +174,7 @@ namespace spades {
 			image = renderer.RegisterImage("Gfx/Scoreboard/Grunt.png");
 			size.x = 120.f;
 			size.y = 60.f;
-			renderer.SetColorAlphaPremultiplied(MakeVector4(1.f, 1.f, 1.f, 0.92f));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1.f, 1.f, 1.f, 1.f) * 0.92f);
 			renderer.DrawImage(
 			  image, AABB2(contentsLeft, teamBarTop + teamBarHeight - size.y, size.x, size.y));
 			renderer.DrawImage(

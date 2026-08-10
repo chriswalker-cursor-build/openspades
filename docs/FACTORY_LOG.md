@@ -59,5 +59,5 @@
 - CI: PR https://github.com/chriswalker-cursor-build/openspades/pull/3 — require `build-ubuntu-free` + `lint-clang-format` + ctest green.
 - Lint: Edited first-party `Sources/Client/{ChatWindow,HurtRingView,CenterMessageView,TCProgressView,ScoreboardView,LimboView,MapView}.cpp` clang-formatted; CI IN-SCOPE remains `Tests/**` (untouched). Scripts `*.as` out of CI lint by design.
 - Tests: Minimal Catch2 suite unchanged (no Math/helper API edits); ctest 1/1 passed locally after HUD rebuild.
-- Bugbot: Watching PR #3 for in-allowlist threads.
-- Status: local proof green; PR open; merge when CI/Bugbot allow.
+- Bugbot: Fixed low finding on PR #3 — scoreboard grunt tint now uses premultiplied `(1,1,1,1)*0.92` instead of straight-alpha `(1,1,1,0.92)`.
+- Status: local proof green; Bugbot addressed; merge when CI allow.
