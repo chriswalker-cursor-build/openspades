@@ -1,0 +1,20 @@
+---
+description: OpenSpades factory quality gates, visual-only scope, and format/ctest discipline
+alwaysApply: true
+---
+
+# Factory quality gates
+
+- Visual look only for slices A/B/C. No netcode/gameplay/physics/protocol.
+- Never edit forbidden paths listed in `AGENTS.md` (`NetClient`, `World`, `Player`, `Weapon`, `Grenade`, game modes, `PhysicsConstants`, `Client_Draw`/`Client_Scene`, `ENet/**`).
+- Path allowlists are STRICT and DISJOINT. Do not expand mid-flight.
+- CI / local proof ALWAYS uses:
+  `cmake -S . -B openspades.mk -DCMAKE_BUILD_TYPE=RelWithDebInfo -DOPENSPADES_NONFREE_RESOURCES=NO -DOPENSPADES_YSR=NO`
+  (prefer also `-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++` on Linux), then build + `ctest --test-dir openspades.mk --output-on-failure`.
+- Every PR must keep **build-ubuntu-free**, **lint-clang-format**, and **ctest** green. Fix failures yourself.
+- Format: use repo-root `.clang-format`. CI lint IN SCOPE is `Tests/**` C++. First-party `Sources/{Client,Core,Draw,Gui,Audio}` are OUT of the fail gate due to pre-existing drift (see `AGENTS.md`); still clang-format any first-party file you edit. Exclude AngelScript vendor and `Resources/Scripts/**/*.as` from CI lint.
+- Do not download/commit proprietary paks or YSR binaries.
+- Append-only `docs/FACTORY_LOG.md` with Lint + Tests fields on every slice entry.
+- GPL-3: no proprietary assets.
+- Async: do not wait for a human; merge Slice 0 when green so Automations A∥B∥C can fan out.
+- Unit suite is minimal characterisation, not full game coverage. No GPU tests.

@@ -67,7 +67,7 @@ jobs:
           build-type: RelWithDebInfo
           configure-options: -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}/openspades/vcpkg/scripts/buildsystems/vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x64-osx -D CMAKE_OSX_ARCHITECTURES=x86_64
           parallel: 8
-  
+
   build-nix:
     name: Build (Linux + Nix)
     runs-on: ubuntu-22.04
@@ -81,3 +81,90 @@ jobs:
       - name: Build Nix flake
         run: nix build
 
+  # Free Ubuntu apt+cmake smoke: NONFREE=NO / YSR=NO, then ctest.
+  # Prefer GCC: Clang can break bundled AngelScript null-this guards at runtime.
+  build-ubuntu-free:
+    name: Build (Ubuntu free)
+    runs-on: ubuntu-latest
+    steps:
+      # No submodules: free apt build does not use vcpkg or flatpak/shared-modules.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libglew-dev libcurl4-openssl-dev \
+            libsdl2-dev libsdl2-image-dev libalut-dev xdg-utils libfreetype6-dev \
+            libopus-dev libopusfile-dev cmake imagemagick zip unzip \
+            libjpeg-dev libxinerama-dev libxft-dev clang-format
+
+      - name: Configure (free resources, no YSR)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DOPENSPADES_NONFREE_RESOURCES=NO -DOPENSPADES_YSR=NO \
+            -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)"
+
+      - name: Unit tests (ctest)
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Upload test / CMake logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-free-build-logs
+          path: |
+            build/Testing/
+            build/CMakeFiles/CMakeOutput.log
+            build/CMakeFiles/CMakeError.log
+          if-no-files-found: warn
+
+  # Format lint — portable C++ check (does not depend on PowerShell).
+  #
+  # FORMAT SCOPE (keep in sync with AGENTS.md):
+  #   IN SCOPE (fail on drift):
+  #     Tests/**/*.{cpp,h,hpp,c,cc}
+  #   OUT OF SCOPE:
+  #     Sources/AngelScript/**          — vendor
+  #     Sources/{ENet,json,kiss_fft130,unzip,binpack2d,Imports} — third-party / imports
+  #     Sources/{Client,Core,Draw,Gui,Audio,ScriptBindings}/**
+  #       Pre-existing drift vs clang-format-18 + root .clang-format (~half of files).
+  #       Mass reformat is outside Slice 0 allowlist and would touch FORBIDDEN gameplay
+  #       paths (NetClient/World/Player/...). Visual slices must clang-format files they edit.
+  #     Resources/Scripts/**/*.as       — run-clang-format.ps1 Java trick + @this. fixup;
+  #                                       dry-run without post-pass is unreliable.
+  #
+  # Ideal first-party find (documented target; not enforced until a format baseline PR):
+  #   find Sources/Client Sources/Core Sources/Draw Sources/Gui Sources/Audio \
+  #     \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' \) \
+  #     -print0 | xargs -0 clang-format --dry-run --Werror
+  lint-clang-format:
+    name: Lint (clang-format)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-format
+          echo "clang-format version: $(clang-format --version)"
+
+      - name: "Check format (IN-SCOPE Tests C++)"
+        run: |
+          set -euo pipefail
+          mapfile -d '' files < <(find Tests \
+            \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.c' -o -name '*.cc' \) \
+            ! -path 'Tests/third_party/*' \
+            -print0)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No in-scope C++ files under Tests/ (excluding third_party)."
+            exit 1
+          fi
+          echo "Checking ${#files[@]} file(s) with $(clang-format --version)"
+          clang-format --dry-run --Werror "${files[@]}"
