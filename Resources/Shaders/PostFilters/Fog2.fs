@@ -83,14 +83,14 @@ void main() {
 	}
 
 	// OpenSpades' fog model uses a Rayleigh-scattering-style wavelength-
-	// dependent fog density. (See `Shaders/Fog.vs`)
-	// Slightly milder channel bias → less milky cyan wash.
+	// dependent fog density. Keep channel bias in sync with `Shaders/Fog.vs`
+	// extinction so distant fog resolves to fogColor (no color cast).
 	vec3 goalFogFactorColor;
 	{
 		float weakenedDensity = 1. - goalFogFactor;
 		weakenedDensity *= weakenedDensity;
 		goalFogFactorColor =
-		  mix(vec3(goalFogFactor), vec3(1. - weakenedDensity), vec3(0., 0.22, 0.82));
+		  mix(vec3(goalFogFactor), vec3(1. - weakenedDensity), vec3(0., 0.3, 1.0));
 	}
 
 	// ---------------------------------------------------------------------
@@ -209,10 +209,8 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.xyz; // linearize
 #endif
 
-	vec3 inScatter = sunlightFactorColor + ambientFactorColor + radiosityFactor;
-	float hazeEnergy = clamp(dot(inScatter, vec3(1. / 3.)), 0., 1.);
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, inScatter, hazeEnergy * 0.18);
-	gl_FragColor.xyz += inScatter * 0.82;
+	// Additive in-scatter only — solid pass already extinguished toward fog.
+	gl_FragColor.xyz += sunlightFactorColor + ambientFactorColor + radiosityFactor;
 
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);

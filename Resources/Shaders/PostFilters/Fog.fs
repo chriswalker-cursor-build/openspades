@@ -365,10 +365,9 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.xyz; // linearize
 #endif
 
-	// soft integrate: partial mix + residual in-scatter (no hard milky add)
-	float haze = clamp(total, 0., 1.);
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, haze * 0.32);
-	gl_FragColor.xyz += total * fogColor * 0.68;
+	// Additive in-scatter only — solid pass already extinguished toward fog
+	// (mix+add would double-extinguish and darken mid-range haze).
+	gl_FragColor.xyz += total * fogColor;
 
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);

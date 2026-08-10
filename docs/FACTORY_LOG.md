@@ -47,8 +47,8 @@
 - CI: PR https://github.com/chriswalker-cursor-build/openspades/pull/5 — self-watching `Build (Ubuntu free)` + `Lint (clang-format)` (+ ctest in ubuntu-free).
 - Lint: formatted edited `Sources/Draw/GLBloomFilter.cpp`, `GLColorCorrectionFilter.cpp`, `GLSettings.cpp`; CI fail-gate still `Tests/**` only. SSAO left to Slice A.
 - Tests: minimal Catch2 characterisation suite unchanged (no GPU tests); ctest green locally.
-- Bugbot: address threads if any after PR open.
-- Status: local proof green; awaiting CI → merge if permitted else ready-to-merge.
+- Bugbot: Fixed 3 medium findings — sync ACES sharpen exposure (0.88) with `acesToneMappingDiffRcp`; restore additive-only Fog/Fog2 composite (no double-extinction mix); keep Fog2 Rayleigh bias `vec3(0.,0.3,1.0)` matched to `Fog.vs`.
+- Status: required CI green (ubuntu-free + lint + ctest); Bugbot fixes pushed; merge if permitted else ready-to-merge.
 
 
 ---

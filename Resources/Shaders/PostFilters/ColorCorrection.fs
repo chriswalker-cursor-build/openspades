@@ -74,7 +74,7 @@ void main() {
 		// `enhancingFactor` by N.
 		float localLuminance = dot(blurred.xyz, vec3(1. / 3.));
 		float localLuminanceLinear = clamp(localLuminance * localLuminance, 0.0, 1.0);
-		enhancingFactor *= acesToneMappingDiffRcp(localLuminanceLinear * 0.8);
+		enhancingFactor *= acesToneMappingDiffRcp(localLuminanceLinear * 0.88);
 
 		// We don't want specular highlights to cause black edges, so weaken the
 		// effect if the local luminance is high.
