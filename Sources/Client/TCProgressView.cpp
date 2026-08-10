@@ -134,7 +134,7 @@ namespace spades {
 					if (state.team1 != 2) {
 						IntVector3 c = w->GetTeam(state.team1).color;
 						renderer.SetColorAlphaPremultiplied(
-						  MakeVector4(c.x / 255.f, c.y / 255.f, c.z / 255.f, 1) * (fade * 0.8f));
+						  MakeVector4(c.x / 255.f, c.y / 255.f, c.z / 255.f, 1) * (fade * 0.7f));
 						renderer.DrawImage(prgBar, MakeVector2(x, y),
 						                   AABB2(0, 0, (1.f - state.progress) * 256.f, 32));
 					}
@@ -142,7 +142,7 @@ namespace spades {
 					if (state.team2 != 2) {
 						IntVector3 c = w->GetTeam(state.team2).color;
 						renderer.SetColorAlphaPremultiplied(
-						  MakeVector4(c.x / 255.f, c.y / 255.f, c.z / 255.f, 1) * (fade * 0.8f));
+						  MakeVector4(c.x / 255.f, c.y / 255.f, c.z / 255.f, 1) * (fade * 0.7f));
 						renderer.DrawImage(
 						  prgBar, MakeVector2(x + (1.f - state.progress) * 256.f, y),
 						  AABB2((1.f - state.progress) * 256.f, 0, state.progress * 256.f, 32));
@@ -163,7 +163,7 @@ namespace spades {
 					y += 35.f;
 
 					font.DrawShadow(str, MakeVector2(x, y), 1.f, MakeVector4(1.f, 1.f, 1.f, fade),
-					                MakeVector4(0, 0, 0, 0.5f * fade));
+					                MakeVector4(0, 0, 0, 0.35f * fade));
 				}
 			} else {
 				// unable to show nearby territory

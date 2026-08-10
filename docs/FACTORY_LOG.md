@@ -53,11 +53,11 @@
 ---
 
 ## Slice C — HUD
-### YYYY-MM-DD
-- Change:
-- Proof:
-- CI:
-- Lint:
-- Tests:
-- Bugbot:
-- Status:
+### 2026-08-10
+- Change: Visual-only HUD/chrome polish within Slice C allowlist — softer chat/killfeed shadows + expanded panel; eased hurt-ring opacity/size; scoreboard vignette/team-bar/players-bg alphas reduced and DrawShadow typography for names/scores/spectators; limbo menu fills + HeadingFont Spawn label; minimap scrim/grid/label/border alphas cleaned; TC progress + center-message shadows softened; Client Gui chat-log/menu overlay alphas reduced (`ChatLogWindow.as`, `Menu.as`). No netcode/gameplay/physics/protocol; did not touch Client_Draw/Client_Scene/Sources/Draw/**/Shaders.
+- Proof: Local `cmake -S . -B openspades.mk -DCMAKE_BUILD_TYPE=RelWithDebInfo -DOPENSPADES_NONFREE_RESOURCES=NO -DOPENSPADES_YSR=NO -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++` configure + build OK; `ctest --test-dir openspades.mk --output-on-failure` → 1/1 (`openspades_unit_tests`, Catch2 cases green); `clang-format --dry-run --Werror` clean on edited HUD Client sources.
+- CI: PR https://github.com/chriswalker-cursor-build/openspades/pull/3 — require `build-ubuntu-free` + `lint-clang-format` + ctest green.
+- Lint: Edited first-party `Sources/Client/{ChatWindow,HurtRingView,CenterMessageView,TCProgressView,ScoreboardView,LimboView,MapView}.cpp` clang-formatted; CI IN-SCOPE remains `Tests/**` (untouched). Scripts `*.as` out of CI lint by design.
+- Tests: Minimal Catch2 suite unchanged (no Math/helper API edits); ctest 1/1 passed locally after HUD rebuild.
+- Bugbot: Fixed low finding on PR #3 — scoreboard grunt tint now uses premultiplied `(1,1,1,1)*0.92` instead of straight-alpha `(1,1,1,0.92)`.
+- Status: local proof green; Bugbot addressed; merge when CI allow.

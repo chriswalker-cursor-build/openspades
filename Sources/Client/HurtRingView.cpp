@@ -37,7 +37,9 @@ namespace spades {
 
 		HurtRingView::~HurtRingView() {}
 
-		void HurtRingView::ClearAll() { items.clear(); }
+		void HurtRingView::ClearAll() {
+			items.clear();
+		}
 
 		void HurtRingView::Add(spades::Vector3 dir) {
 			SPADES_MARK_FUNCTION();
@@ -82,7 +84,8 @@ namespace spades {
 
 			playerFront = p->GetFront2D();
 
-			float hurtRingSize = renderer.ScreenHeight() * .3f;
+			// Slightly tighter ring + eased opacity keeps the vignette readable without clutter
+			float hurtRingSize = renderer.ScreenHeight() * .28f;
 			float cx = renderer.ScreenWidth() * .5f;
 			float cy = renderer.ScreenHeight() * .5f;
 			static const float coords[][2] = {{-1, 1}, {1, 1}, {-1, 0}};
@@ -94,6 +97,9 @@ namespace spades {
 				float fade = item.fade * 2.f;
 				if (fade > 1.f)
 					fade = 1.f;
+				// Ease-out so the ring drops opacity sooner than a hard linear hold
+				fade = fade * fade * (3.f - 2.f * fade);
+				fade *= 0.85f;
 				Vector4 color = {fade, fade, fade, 0};
 				renderer.SetColorAlphaPremultiplied(color);
 

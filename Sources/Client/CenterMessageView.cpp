@@ -88,7 +88,7 @@ namespace spades {
 				float y = 100.f + 32.f * (float)ent.line;
 				float x = (renderer.ScreenWidth() - size.x) * .5f;
 
-				Vector4 shadow = {0, 0, 0, fade * 0.5f};
+				Vector4 shadow = {0, 0, 0, fade * 0.35f};
 				Vector4 color = {1, 1, 1, fade};
 
 				font->DrawShadow(ent.msg, MakeVector2(x, y), 1.f, color, shadow);
