@@ -62,13 +62,13 @@ namespace spades {
             contentsTop = (Manager.Renderer.ScreenHeight - contentsHeight - 106.f) * 0.5f;
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.4f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.28f);
                 label.Bounds = Bounds;
                 AddChild(label);
             }
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.8f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.62f);
                 label.Bounds = AABB2(0.f, contentsTop - 13.f, Size.x, contentsHeight + 27.f);
                 AddChild(label);
             }

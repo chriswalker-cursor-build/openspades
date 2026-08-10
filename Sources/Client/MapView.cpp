@@ -334,12 +334,12 @@ namespace spades {
 				alpha = zoomState;
 			}
 
-			// fades bg
+			// fades bg — lighter scrim so the large map chrome is less muddy
 			if (largeMap) {
 				Handle<IImage> bg = renderer.RegisterImage("Gfx/MapBg.png");
 				Vector2 scrSize = {renderer.ScreenWidth(), renderer.ScreenHeight()};
 				float size = std::max(scrSize.x, scrSize.y);
-				renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha * .5f));
+				renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha * .35f));
 				renderer.DrawImage(
 				  bg, AABB2((scrSize.x - size) * .5f, (scrSize.y - size) * .5f, size, size));
 			}
@@ -357,7 +357,9 @@ namespace spades {
 			}
 			borderRect = borderRect.Inflate(borderWidth - 8.f);
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
+			const float borderAlpha = largeMap ? alpha : alpha * 0.88f;
+			renderer.SetColorAlphaPremultiplied(
+			  MakeVector4(borderAlpha, borderAlpha, borderAlpha, borderAlpha));
 			renderer.DrawImage(border,
 			                   AABB2(borderRect.GetMinX() - 16, borderRect.GetMinY() - 16, 16, 16),
 			                   AABB2(0, 0, 16, 16));
@@ -391,9 +393,9 @@ namespace spades {
 			this->inRect = inRect;
 			this->outRect = outRect;
 
-			// draw grid
+			// draw grid — reduced alpha keeps sector lines from dominating icons
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8f * alpha));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.45f * alpha));
 			Handle<IImage> dashLine = renderer.RegisterImage("Gfx/DashLine.tga");
 			for (float x = 64.f; x < map->Width(); x += 64.f) {
 				float wx = (x - inRect.GetMinX()) / inRect.GetWidth();
@@ -415,7 +417,7 @@ namespace spades {
 			}
 
 			// draw grid label
-			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * (0.8f * alpha));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * (0.65f * alpha));
 			Handle<IImage> mapFont = renderer.RegisterImage("Gfx/Fonts/MapFont.tga");
 			for (int i = 0; i < 8; i++) {
 				float startX = (float)i * 64.f;
@@ -426,7 +428,8 @@ namespace spades {
 				  std::min((std::min(endX, inRect.GetMaxX()) - std::max(startX, inRect.GetMinX())) /
 				             (endX - startX) * 2.f,
 				           1.f);
-				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * (fade * .8f * alpha));
+				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) *
+				                                    (fade * .65f * alpha));
 
 				float center = std::max(startX, inRect.GetMinX());
 				center = .5f * (center + std::min(endX, inRect.GetMaxX()));
@@ -449,7 +452,8 @@ namespace spades {
 				  std::min((std::min(endY, inRect.GetMaxY()) - std::max(startY, inRect.GetMinY())) /
 				             (endY - startY) * 2.f,
 				           1.f);
-				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * (fade * .8f * alpha));
+				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) *
+				                                    (fade * .65f * alpha));
 
 				float center = std::max(startY, inRect.GetMinY());
 				center = .5f * (center + std::min(endY, inRect.GetMaxY()));

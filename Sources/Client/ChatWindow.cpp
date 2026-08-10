@@ -42,7 +42,9 @@ namespace spades {
 		}
 		ChatWindow::~ChatWindow() {}
 
-		float ChatWindow::GetWidth() { return renderer->ScreenWidth() / 2; }
+		float ChatWindow::GetWidth() {
+			return renderer->ScreenWidth() / 2;
+		}
 
 		float ChatWindow::GetNormalHeight() {
 			float prop = killfeed ? (float)cg_killfeedHeight : (float)cg_chatHeight;
@@ -61,9 +63,13 @@ namespace spades {
 			}
 		}
 
-		float ChatWindow::GetLineHeight() { return 20.f; }
+		float ChatWindow::GetLineHeight() {
+			return 20.f;
+		}
 
-		static bool isWordChar(char c) { return isalnum(c) || c == '\''; }
+		static bool isWordChar(char c) {
+			return isalnum(c) || c == '\'';
+		}
 
 		std::string ChatWindow::killImage(int type, int weapon) {
 			std::string tmp = "xx";
@@ -240,8 +246,9 @@ namespace spades {
 
 			float y = firstY;
 
-			Vector4 shadowColor = {0, 0, 0, 0.8f};
-			Vector4 brightShadowColor = {1, 1, 1, 0.8f};
+			// Soften chat chrome so killfeed/chat read cleaner over the scene
+			Vector4 shadowColor = {0, 0, 0, 0.55f};
+			Vector4 brightShadowColor = {1, 1, 1, 0.45f};
 
 			std::string ch = "aaaaaa"; // let's not make a new object for each character.
 			// note: UTF-8's longest character is 6 bytes
@@ -249,7 +256,7 @@ namespace spades {
 			if (expanded) {
 				// Draw a box behind text when expanded
 				Handle<IImage> whiteImage = renderer->RegisterImage("Gfx/White.tga");
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2f));
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.14f));
 				renderer->DrawImage(whiteImage, AABB2(0, winY, GetWidth(), winH));
 			}
 
@@ -277,7 +284,8 @@ namespace spades {
 					goto endDrawLine;
 				}
 
-				brightShadowColor.w = shadowColor.w = .8f * fade;
+				brightShadowColor.w = .45f * fade;
+				shadowColor.w = .55f * fade;
 
 				color.w = fade;
 				for (size_t i = 0; i < msg.size(); i++) {

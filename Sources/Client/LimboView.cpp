@@ -184,14 +184,16 @@ namespace spades {
 				Vector2 pos;
 				pos.x = left + 10.f;
 				pos.y = top + 10.f;
-				font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4f));
+				font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1),
+				                MakeVector4(0, 0, 0, 0.32f));
 			}
 			if (selectedTeam != 2) {
 				std::string msg = _Tr("Client", "Select Weapon:");
 				Vector2 pos;
 				pos.x = left + 260.f;
 				pos.y = top + 10.f;
-				font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4f));
+				font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1),
+				                MakeVector4(0, 0, 0, 0.32f));
 			}
 
 			for (size_t i = 0; i < items.size(); i++) {
@@ -217,15 +219,16 @@ namespace spades {
 					default: selected = false;
 				}
 
-				Vector4 fillColor = {0.2f, 0.2f, 0.2f, 0.5f};
+				Vector4 fillColor = {0.18f, 0.18f, 0.18f, 0.42f};
 				Vector4 ringColor = {0, 0, 0, 0};
+				const Vector4 labelShadow = MakeVector4(0, 0, 0, 0.32f);
 
 				if (item.hover) {
-					fillColor = MakeVector4(.4f, .4f, .4f, 1.f) * .7f;
-					ringColor = MakeVector4(.8f, .8f, .8f, 1.f) * .7f;
+					fillColor = MakeVector4(.42f, .42f, .42f, 1.f) * .62f;
+					ringColor = MakeVector4(.85f, .85f, .85f, 1.f) * .55f;
 				}
 				if (selected) {
-					fillColor = MakeVector4(.7f, .7f, .7f, 1.f) * .9f;
+					fillColor = MakeVector4(.68f, .68f, .68f, 1.f) * .78f;
 				}
 
 				renderer.SetColorAlphaPremultiplied(fillColor);
@@ -233,13 +236,12 @@ namespace spades {
 					renderer.DrawImage(menuItemBigImage, item.rect);
 
 					std::string msg = item.text;
-					IFont &bFont = client->fontManager->GetGuiFont();
+					IFont &bFont = client->fontManager->GetHeadingFont();
 					Vector2 size = bFont.Measure(msg);
 					Vector2 pos;
 					pos.x = item.rect.GetMinX() + (item.rect.GetWidth() - size.x) / 2.f + 2.f;
 					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.f;
-					bFont.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1),
-					                 MakeVector4(0, 0, 0, 0.4f));
+					bFont.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1), labelShadow);
 				} else {
 					renderer.DrawImage(menuItemImage, item.rect);
 
@@ -252,15 +254,13 @@ namespace spades {
 					Vector2 pos;
 					pos.x = item.rect.GetMinX() + 5.f;
 					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.f;
-					font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1),
-					                MakeVector4(0, 0, 0, 0.4f));
+					font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1), labelShadow);
 					if (index > 0) {
 						std::stringstream ss;
 						ss << index;
 						msg = ss.str();
 						pos.x = item.rect.GetMaxX() - 5.f - font.Measure(msg).x;
-						font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1),
-						                MakeVector4(0, 0, 0, 0.4f));
+						font.DrawShadow(msg, pos, 1.f, MakeVector4(1, 1, 1, 1), labelShadow);
 					}
 				}
 			}

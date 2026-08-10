@@ -36,7 +36,7 @@ namespace spades {
 
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.5f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.35f);
                 label.Bounds =
                     AABB2(0.f, 0.f, Manager.Renderer.ScreenWidth, Manager.Renderer.ScreenHeight);
                 AddChild(label);
@@ -44,7 +44,7 @@ namespace spades {
 
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.5f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.42f);
                 label.Bounds = AABB2(winX - 8.f, winY - 8.f, winW + 16.f, winH + 16.f);
                 AddChild(label);
             }

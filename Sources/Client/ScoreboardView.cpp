@@ -155,42 +155,42 @@ namespace spades {
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
-			// draw shadow
+			// Soft edge vignettes — keep the board grounded without a heavy black frame
 			image = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
 			size.y = 32.f;
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2f));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.12f));
 			renderer.DrawImage(image, AABB2(0, teamBarTop - size.y, scrWidth, size.y));
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2f));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.12f));
 			renderer.DrawImage(image, AABB2(0, playersBottom + size.y, scrWidth, -size.y));
 
 			// draw team bar
 			image = whiteImage;
-			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8f, 0.3f));
+			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.72f, 0.35f));
 			renderer.DrawImage(image, AABB2(0, teamBarTop, scrWidth * .5f, teamBarHeight));
-			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(1), 0.8f, 0.3f));
+			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(1), 0.72f, 0.35f));
 			renderer.DrawImage(image,
 			                   AABB2(scrWidth * .5f, teamBarTop, scrWidth * .5f, teamBarHeight));
 
 			image = renderer.RegisterImage("Gfx/Scoreboard/Grunt.png");
 			size.x = 120.f;
 			size.y = 60.f;
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1.f, 1.f, 1.f, 0.92f));
 			renderer.DrawImage(
 			  image, AABB2(contentsLeft, teamBarTop + teamBarHeight - size.y, size.x, size.y));
 			renderer.DrawImage(
 			  image, AABB2(contentsRight, teamBarTop + teamBarHeight - size.y, -size.x, size.y));
 
+			const Vector4 teamNameShadow = MakeVector4(0, 0, 0, 0.35f);
 			str = world->GetTeam(0).name;
 			pos.x = contentsLeft + 110.f;
 			pos.y = teamBarTop + 5.f;
-			font.Draw(str, pos + MakeVector2(0, 2), 1.f, MakeVector4(0, 0, 0, 0.5));
-			font.Draw(str, pos, 1.f, whiteColor);
+			font.DrawShadow(str, pos, 1.f, whiteColor, teamNameShadow);
 
 			str = world->GetTeam(1).name;
 			size = font.Measure(str);
 			pos.x = contentsRight - 110.f - size.x;
 			pos.y = teamBarTop + 5.f;
-			font.Draw(str, pos + MakeVector2(0, 2), 1.f, MakeVector4(0, 0, 0, 0.5));
-			font.Draw(str, pos, 1.f, whiteColor);
+			font.DrawShadow(str, pos, 1.f, whiteColor, teamNameShadow);
 
 			// draw scores
 			int capLimit;
@@ -202,21 +202,22 @@ namespace spades {
 				capLimit = -1;
 			}
 			if (capLimit != -1) {
+				const Vector4 scoreColor = MakeVector4(1.f, 1.f, 1.f, 0.72f);
 				str = Format("{0}-{1}", GetTeamScore(0), capLimit);
 				pos.x = scrWidth * .5f - font.Measure(str).x - 15.f;
 				pos.y = teamBarTop + 5.f;
-				font.Draw(str, pos, 1.f, Vector4(1.f, 1.f, 1.f, 0.5f));
+				font.DrawShadow(str, pos, 1.f, scoreColor, teamNameShadow);
 
 				str = Format("{0}-{1}", GetTeamScore(1), capLimit);
 				pos.x = scrWidth * .5f + 15.f;
 				pos.y = teamBarTop + 5.f;
-				font.Draw(str, pos, 1.f, Vector4(1.f, 1.f, 1.f, 0.5f));
+				font.DrawShadow(str, pos, 1.f, scoreColor, teamNameShadow);
 			}
 
 			// players background
 			auto areSpectatorsPr = areSpectatorsPresent();
 			image = renderer.RegisterImage("Gfx/Scoreboard/PlayersBg.png");
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1.f));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.82f));
 			renderer.DrawImage(image,
 			                   AABB2(0, playersTop, scrWidth,
 			                         playersHeight + (areSpectatorsPr ? spectatorsHeight : 0)));
@@ -245,7 +246,8 @@ namespace spades {
 			char buf[256];
 			Vector2 size;
 			Vector4 white = {1, 1, 1, 1};
-			Vector4 gray = {0.5, 0.5, 0.5, 1};
+			Vector4 gray = {0.62f, 0.62f, 0.62f, 1};
+			const Vector4 rowShadow = MakeVector4(0, 0, 0, 0.28f);
 			int maxRows = (int)floorf(height / rowHeight);
 			int numPlayers = 0;
 			int cols;
@@ -295,22 +297,25 @@ namespace spades {
 					  IntVector3::Make(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
 					Vector4 ColorplayerF = ModifyColor(Colorplayer);
 					ColorplayerF *= 1.0f;
-					font.Draw(buf, MakeVector2(colX + 35.f - size.x, rowY), 1.f, ColorplayerF);
+					font.DrawShadow(buf, MakeVector2(colX + 35.f - size.x, rowY), 1.f, ColorplayerF,
+					                rowShadow);
 				} else {
-					font.Draw(buf, MakeVector2(colX + 35.f - size.x, rowY), 1.f, white);
+					font.DrawShadow(buf, MakeVector2(colX + 35.f - size.x, rowY), 1.f, white,
+					                rowShadow);
 				}
 
 				color = ent.alive ? white : gray;
 				if (stmp::make_optional(ent.id) == world->GetLocalPlayerIndex())
 					color = GetTeamColor(team);
 
-				font.Draw(ent.name, MakeVector2(colX + 45.f, rowY), 1.f, color);
+				font.DrawShadow(ent.name, MakeVector2(colX + 45.f, rowY), 1.f, color, rowShadow);
 
 				color = white;
 
 				sprintf(buf, "%d", ent.score);
 				size = font.Measure(buf);
-				font.Draw(buf, MakeVector2(colX + colWidth - 10.f - size.x, rowY), 1.f, color);
+				font.DrawShadow(buf, MakeVector2(colX + colWidth - 10.f - size.x, rowY), 1.f, color,
+				                rowShadow);
 
 				row++;
 				if (row >= maxRows) {
@@ -359,9 +364,10 @@ namespace spades {
 
 			auto isSquareFont = spectatorFont == &client->fontManager->GetSquareDesignFont();
 			auto sizeSpecString = spectatorFont->Measure(buf);
-			spectatorFont->Draw(
+			const Vector4 spectatorShadow = MakeVector4(0, 0, 0, 0.28f);
+			spectatorFont->DrawShadow(
 			  buf, MakeVector2(centerX - sizeSpecString.x / 2, top + (isSquareFont ? 0 : 10)), 1.f,
-			  spectatorTextColor);
+			  spectatorTextColor, spectatorShadow);
 
 			auto yOffset = top + sizeSpecString.y;
 			auto halfTotalX = totalPixelWidth / 2;
@@ -371,12 +377,13 @@ namespace spades {
 				ScoreboardEntry &ent = entries[i];
 
 				sprintf(buf, "#%d", ent.id);
-				font.Draw(buf, MakeVector2(currentXoffset, yOffset), 1.f, spectatorIdColor);
+				font.DrawShadow(buf, MakeVector2(currentXoffset, yOffset), 1.f, spectatorIdColor,
+				                spectatorShadow);
 
 				auto sizeName = font.Measure(ent.name);
 				auto sizeID = font.Measure(buf);
-				font.Draw(ent.name, MakeVector2(currentXoffset + sizeID.x + 5.f, yOffset), 1.f,
-				          white);
+				font.DrawShadow(ent.name, MakeVector2(currentXoffset + sizeID.x + 5.f, yOffset),
+				                1.f, white, spectatorShadow);
 
 				currentXoffset += sizeID.x + sizeName.x + xPixelSpectatorOffset;
 			}
