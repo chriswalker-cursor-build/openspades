@@ -258,6 +258,10 @@ endif()
 add_subdirectory(Resources)
 add_subdirectory(Sources)
 
+# Minimal headless unit tests (Catch2 characterisation suite under Tests/).
+enable_testing()
+add_subdirectory(Tests)
+
 if(UNIX AND NOT APPLE)
 	# various texts
 	INSTALL(FILES AUTHORS LICENSE README.md DESTINATION ${OPENSPADES_INSTALL_DOC}/)

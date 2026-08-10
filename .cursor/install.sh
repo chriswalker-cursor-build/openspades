@@ -9,6 +9,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Build + runtime dependencies. Mirrors the Debian list in README.md, plus the
 # extra jpeg/Xinerama/Xft packages that README notes some distributions need,
 # plus Mesa software rendering and Xvfb so the GUI can be launched headlessly.
+# clang-format supports the factory lint gate (see AGENTS.md).
 sudo apt-get update
 sudo apt-get install -y --no-install-recommends \
   build-essential pkg-config cmake \
@@ -16,10 +17,13 @@ sudo apt-get install -y --no-install-recommends \
   xdg-utils libfreetype6-dev libopus-dev libopusfile-dev \
   imagemagick zip unzip \
   libjpeg-dev libxinerama-dev libxft-dev \
-  libgl1-mesa-dri libglu1-mesa-dev xvfb
+  libgl1-mesa-dri libglu1-mesa-dev xvfb \
+  clang-format
 
 # Configure and build. The out-of-source `openspades.mk` directory matches the
 # project's documented Linux build convention.
+#
+# Factory policy: NEVER download proprietary paks / YSR (NONFREE=NO, YSR=NO).
 #
 # Build with GCC explicitly: on images whose default `c++` is Clang, Clang's
 # optimizer elides the UB-based null-`this` guard in the bundled AngelScript
@@ -27,8 +31,11 @@ sudo apt-get install -y --no-install-recommends \
 # startup. GCC is the compiler the project's Linux instructions assume.
 cmake -S . -B openspades.mk \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DOPENSPADES_NONFREE_RESOURCES=NO \
+  -DOPENSPADES_YSR=NO \
   -DCMAKE_C_COMPILER=gcc \
   -DCMAKE_CXX_COMPILER=g++
 cmake --build openspades.mk -j"$(nproc)"
+ctest --test-dir openspades.mk --output-on-failure
 
 echo "OpenSpades build complete: openspades.mk/bin/openspades"
