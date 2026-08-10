@@ -90,8 +90,8 @@ void main() {
     vec3 originViewCoord = vec3((texCoord * 2.0 - 1.0) * fieldOfView, 1.0);
     originViewCoord *= originDepth;
 
-    // Decay parameter
-    float depthDecayScale = -2.0;
+    // Decay parameter — gentler falloff keeps contact AO readable without crushing
+    float depthDecayScale = -1.55;
 
     float sampleDecay = 1.;
     float ret = 0.0;
@@ -103,21 +103,26 @@ void main() {
         float sampledDepth = texture2D(depthTexture, sampleCoord).x;
         float decodedDepth = decodeDepth(sampledDepth, zNearFar.x, zNearFar.y);
 
-        decodedDepth += 0.1; // FIXME: this value needs to be tweaked?
+        // Slightly larger bias softens near-field contact shadow edges
+        decodedDepth += 0.14;
 
         vec3 viewCoord =  vec3((sampleCoord * 2.0 - 1.0) * fieldOfView, 1.) * decodedDepth;
         vec3 relativeViewCoord = normalize(viewCoord - originViewCoord);
         float cosHorizon = -dot(relativeViewCoord, originNormal);
+        // Soft-clamp horizon contribution so SSAO does not go fully black
+        cosHorizon = max(cosHorizon, 0.0) * 0.92;
         float depthDecay = exp2(depthDecayScale * abs(decodedDepth - originDepth));
 
         ret = mix(ret, max(ret, cosHorizon), sampleDecay * depthDecay);
 
         sampleDistance += 1. + sampleDistance * 0.3;
         sampleDir = complexMultiply(sampleDir, sampleRot);
-        sampleDecay *= .92;
+        sampleDecay *= .94;
     }
 
     ret = 1.0 - ret;
+    // Lift the AO floor and ease the curve — more natural, less crushed blacks
+    ret = mix(0.28, 1.0, pow(clamp(ret, 0.0, 1.0), 0.82));
     gl_FragColor.xyz = vec3(ret);
     gl_FragColor.w = 1.0;
 }

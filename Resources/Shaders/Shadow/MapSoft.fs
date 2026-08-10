@@ -76,8 +76,8 @@ float VisibilityOfSunLight_Map() {
 	
 	float distance = distWeighted3.x;
 	
-	// blurred shadow sampling
-	float blur = distance * 4.;
+	// blurred shadow sampling — wider penumbra for softer contact shadows
+	float blur = distance * 5.5;
 	blur = max(blur, 1.e-10); // avoid zero division
 	
 	vec2 blurWeight = 0.5 - (0.5 - fracPosHSAbs) / blur;
@@ -96,13 +96,12 @@ float VisibilityOfSunLight_Map() {
 		sharpVal -= fract(mapShadowCoord.y) / 255.;
 	}
 	
-	float dist = sharpVal - mapShadowCoord.z + 0.001;
-	sharpVal = step(0., dist);
+	float dist = sharpVal - mapShadowCoord.z + 0.0015;
+	sharpVal = clamp(dist * 160.0 + 0.2, 0., 1.);
 	
-	float sharpWeight = clamp(4. + dist * 200., 0., 1.);
+	float sharpWeight = clamp(3. + dist * 160., 0., 1.);
 	sharpVal = mix(1., sharpVal, sharpWeight);
 	
 	val *= sharpVal;
-	
-	return val;
+	return mix(0.06, 1.0, clamp(val, 0.0, 1.0));
 }

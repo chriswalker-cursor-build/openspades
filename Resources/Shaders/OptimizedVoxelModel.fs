@@ -61,13 +61,15 @@ void main() {
 	// linearize
 	gl_FragColor.xyz *= gl_FragColor.xyz;
 
-	// shading
-	vec3 shading = vec3(flatShading);
+	// shading — soft wrap reduces flat voxel faces under hard sun
+	float sunTerm = mix(0.14, 1.0, clamp(flatShading, 0.0, 1.0));
+	vec3 shading = vec3(sunTerm);
 
 	shading *= EvaluateSunLight();
 
 	vec3 ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).xyz;
-	shading += EvaluateAmbientLight(ao.x);
+	float aoTerm = mix(0.4, 1.0, ao.x);
+	shading += EvaluateAmbientLight(aoTerm);
 
 	if (!isEmissive) {
 		gl_FragColor.xyz *= shading;

@@ -52,22 +52,26 @@ vec3 EvaluateDynamicLightNoBump() {
 	    any(greaterThan(lightTexCoord.xy, vec2(lightTexCoord.z))))
 		discard;
 
-	// diffuse lighting
-	float intensity = dot(normalize(lightPos), normalize(lightNormal));
-	if(intensity < 0.) discard;
+	// diffuse lighting — soft wrap so voxels pick up a little fill at grazing angles
+	float ndotl = dot(normalize(lightPos), normalize(lightNormal));
+	float intensity = clamp(ndotl * 0.85 + 0.15, 0.0, 1.0);
+	if(ndotl < -0.2) discard;
 	
-	// attenuation
+	// attenuation — smoother falloff near the radius edge
 	float distance = length(lightPos);
 	if(distance >= dynamicLightRadius) discard;
 	distance *= dynamicLightRadiusInversed;
 	distance = max(1. - distance, 0.);
-	float att = distance * distance;
+	float att = distance * distance * (1.0 + 0.35 * distance);
 	
 	// apply attenuation
 	intensity *= att;
 
+	// Warm dynamic lights (muzzle / grenade / torch feel less sterile)
+	vec3 warmColor = dynamicLightColor * vec3(1.12, 0.96, 0.82);
+
 	// TODO: specular lighting?
-	return dynamicLightColor * intensity * EvaluateDynamicLightShadow() * texValue;
+	return warmColor * intensity * EvaluateDynamicLightShadow() * texValue;
 }
 
 // TODO: bumpmapping variant (requires tangent vector)
