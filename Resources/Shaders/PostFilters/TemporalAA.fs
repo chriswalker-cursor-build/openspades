@@ -138,22 +138,23 @@ void main() {
     mixRate = 1.0 / (1.0 / mixRate + 1.0);
 
     // Increase the mix rate if the prediction is unreliable
+    // (tempered to reduce temporal oversharpen / ghost ringing)
     {
         vec3 diff = abs(antialiased - preclamping);
         float clampAmount = max(max(diff.x, diff.y), diff.z);
-        mixRate += clampAmount * 8.0;
+        mixRate += clampAmount * 6.0;
     }
 
 	// Increase the mix rate if the fog factor is high
     // (Prevents barely-visible objects from being blurred away)
 	{
 		float contrast = 1.0 - fogFactor;
-		const float contrastThreshold = 0.1;
-		const float contrastFactor = 2.0;
+		const float contrastThreshold = 0.12;
+		const float contrastFactor = 1.5;
 		mixRate += max(0.0, contrastThreshold - contrast) / contrastThreshold * contrastFactor;
 	}
 
-	mixRate = clamp(mixRate, 0.05, 0.5);
+	mixRate = clamp(mixRate, 0.05, 0.42);
 
     antialiased = decodePalYuv(antialiased);
 

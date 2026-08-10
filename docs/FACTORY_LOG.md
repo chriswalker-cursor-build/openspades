@@ -41,14 +41,15 @@
 ---
 
 ## Slice B — Water / Fog / Post-FX
-### YYYY-MM-DD
-- Change:
-- Proof:
-- CI:
-- Lint:
-- Tests:
-- Bugbot:
-- Status:
+### 2026-08-10
+- Change: Visual filmic pass on water / fog / post-FX only (allowlisted Draw filters + Water/Fog/PostFilters shaders; **did not** touch `SSAO.fs`/`SSAO.program` or `GLRenderer.*`). Water1–3: quieter wave normals, tighter refraction/reflection displace, shoreline foam/tint for default `r_water=2`. Fog/Fog2: softer ambient fill + sun-integrated haze (less milky wash / hard cutoff). Bloom mix controlled with slight highlight punch; ColorCorrection saturation/enhancement + sharpen caps tuned against ringing; FXAA span/reduce and TAA mix-rate tempered; default `r_sharpen=0.85`.
+- Proof: Local configure/build with canonical free flags (gcc/g++) succeeded (`OpenSpades` + `openspades_unit_tests` linked). `ctest --test-dir openspades.mk --output-on-failure` → 1/1 ctest target passed (8 Catch2 cases). `clang-format --dry-run --Werror` clean on edited Draw C++ + `Tests/MathTests.cpp`. No `GLRenderer.*` / SSAO edits.
+- CI: PR https://github.com/chriswalker-cursor-build/openspades/pull/5 — self-watching `Build (Ubuntu free)` + `Lint (clang-format)` (+ ctest in ubuntu-free).
+- Lint: formatted edited `Sources/Draw/GLBloomFilter.cpp`, `GLColorCorrectionFilter.cpp`, `GLSettings.cpp`; CI fail-gate still `Tests/**` only. SSAO left to Slice A.
+- Tests: minimal Catch2 characterisation suite unchanged (no GPU tests); ctest green locally.
+- Bugbot: Fixed 3 medium findings — sync ACES sharpen exposure (0.88) with `acesToneMappingDiffRcp`; restore additive-only Fog/Fog2 composite (no double-extinction mix); keep Fog2 Rayleigh bias `vec3(0.,0.3,1.0)` matched to `Fog.vs`.
+- Status: required CI green (ubuntu-free + lint + ctest); Bugbot fixes pushed; merge if permitted else ready-to-merge.
+
 
 ---
 

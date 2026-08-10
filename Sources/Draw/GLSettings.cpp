@@ -62,7 +62,7 @@ DEFINE_SPADES_SETTING(r_saturation, "1");
 DEFINE_SPADES_SETTING(r_scale, "1");
 DEFINE_SPADES_SETTING(r_scaleFilter, "1");
 DEFINE_SPADES_SETTING(r_shadowMapSize, "2048");
-DEFINE_SPADES_SETTING(r_sharpen, "1");
+DEFINE_SPADES_SETTING(r_sharpen, "0.85");
 DEFINE_SPADES_SETTING(r_softParticles, "1");
 DEFINE_SPADES_SETTING(r_sparseShadowMaps, "1");
 DEFINE_SPADES_SETTING(r_srgb, "0");
@@ -84,5 +84,5 @@ namespace spades {
 		bool GLSettings::ShouldUseFogFilter2() {
 			return this->r_fogShadow.operator int() == 2 && !!this->r_radiosity.operator int();
 		}
-    } // namespace draw
+	} // namespace draw
 } // namespace spades

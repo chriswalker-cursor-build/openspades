@@ -148,8 +148,9 @@ namespace spades {
 			dev.Viewport(0, 0, output.GetWidth(), output.GetHeight());
 			gammaMixTexture1.SetValue(0);
 			gammaMixTexture2.SetValue(1);
-			gammaMixMix1.SetValue(.8f, .8f, .8f);
-			gammaMixMix2.SetValue(.2f, .2f, .2f);
+			// Controlled bloom with slight highlight punch (sum > 1 on bright pixels)
+			gammaMixMix1.SetValue(.84f, .84f, .84f);
+			gammaMixMix2.SetValue(.18f, .18f, .18f);
 			qr.Draw();
 			dev.BindTexture(IGLDevice::Texture2D, 0);
 

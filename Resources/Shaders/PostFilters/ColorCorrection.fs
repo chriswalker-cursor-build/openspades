@@ -74,7 +74,7 @@ void main() {
 		// `enhancingFactor` by N.
 		float localLuminance = dot(blurred.xyz, vec3(1. / 3.));
 		float localLuminanceLinear = clamp(localLuminance * localLuminance, 0.0, 1.0);
-		enhancingFactor *= acesToneMappingDiffRcp(localLuminanceLinear * 0.8);
+		enhancingFactor *= acesToneMappingDiffRcp(localLuminanceLinear * 0.88);
 
 		// We don't want specular highlights to cause black edges, so weaken the
 		// effect if the local luminance is high.
@@ -85,8 +85,8 @@ void main() {
 		}
 #endif
 
-		// Clamp the sharpening effect's intensity.
-		enhancingFactor = clamp(enhancingFactor, 1.0, 4.0);
+		// Clamp the sharpening effect's intensity (tighter cap = less ringing).
+		enhancingFactor = clamp(enhancingFactor, 1.0, 3.0);
 
 		// Derive the value of `localSharpening` that achieves the desired
 		// contrast enhancement. When `sharpeningFinalGain = 1`, the sharpening
@@ -101,7 +101,7 @@ void main() {
 
 		// Sharpening is done by reversing the effect of the blur kernel.
 		// Clamp the lower bound to suppress the black edges around specular highlights.
-		vec3 lowerBound = gl_FragColor.xyz * 0.6;
+		vec3 lowerBound = gl_FragColor.xyz * 0.7;
 		gl_FragColor.xyz += (gl_FragColor.xyz - blurred.xyz) * localSharpening;
 		gl_FragColor.xyz = max(gl_FragColor.xyz, lowerBound);
 	}
@@ -114,7 +114,8 @@ void main() {
 
 #if USE_HDR
 	gl_FragColor.xyz *= gl_FragColor.xyz; // linearize
-	gl_FragColor.xyz = acesToneMapping(gl_FragColor.xyz * 0.8);
+	// Slightly higher pre-exposure before ACES → punchier highlights, controlled mids
+	gl_FragColor.xyz = acesToneMapping(gl_FragColor.xyz * 0.88);
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz); // delinearize
 	gl_FragColor.xyz = mix(gl_FragColor.xyz,
 						   smoothstep(0., 1., gl_FragColor.xyz),

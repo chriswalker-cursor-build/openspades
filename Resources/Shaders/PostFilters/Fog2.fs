@@ -74,14 +74,17 @@ void main() {
 
 	// Calculate the supposed fog factor of the current pixel based on the
 	// VOXLAP's cylindrical fog density model.
+	// Soft-power falloff reduces hard cutoff at fogDistance.
 	float goalFogFactor = min(voxlapDistanceSq / (fogDistance * fogDistance), 1.0);
+	goalFogFactor = mix(goalFogFactor, goalFogFactor * goalFogFactor, 0.28);
 	if (localClipZ == 1.0) {
 		// The sky should have the fog color.
 		goalFogFactor = 1.0;
 	}
 
 	// OpenSpades' fog model uses a Rayleigh-scattering-style wavelength-
-	// dependent fog density. (See `Shaders/Fog.vs`)
+	// dependent fog density. Keep channel bias in sync with `Shaders/Fog.vs`
+	// extinction so distant fog resolves to fogColor (no color cast).
 	vec3 goalFogFactorColor;
 	{
 		float weakenedDensity = 1. - goalFogFactor;
@@ -192,11 +195,12 @@ void main() {
 
 	// ---------------------------------------------------------------------
 
-	// add gradient
+	// cinematic sun-integrated haze (controlled ambient so lighting reads through)
 	vec3 sunDir = normalize(vec3(0., -1., -1.));
 	float bright = dot(sunDir, normalize(viewcentricWorldPosition.xyz));
-	sunlightFactorColor *= bright * 0.5 + 1.0;
-	ambientFactorColor *= bright * 0.5 + 1.0;
+	sunlightFactorColor *= bright * 0.42 + 1.0;
+	ambientFactorColor *= bright * 0.28 + 0.88;
+	radiosityFactor *= bright * 0.2 + 0.92;
 
 	// ---------------------------------------------------------------------
 
@@ -205,6 +209,7 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.xyz; // linearize
 #endif
 
+	// Additive in-scatter only — solid pass already extinguished toward fog.
 	gl_FragColor.xyz += sunlightFactorColor + ambientFactorColor + radiosityFactor;
 
 #if !LINEAR_FRAMEBUFFER
